@@ -17,6 +17,7 @@ const _ = require('lodash');
 
 let app = express();
 
+
 const port = process.env.PORT;
 admin.initializeApp(functions.config().firebase);
 
@@ -64,7 +65,7 @@ app.post('/todos', (req, res) => {
 //         last: req.body.last,
 //         born: req.body.born
 //     });
-
+//
 // });
 
 //all todos
@@ -105,6 +106,22 @@ app.post('/todos', (req, res) => {
 app.get('/todos', (req, res) => {
     res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
     db.collection('cities').doc('IN').get()
+        .then(doc => {
+
+
+            res.send(doc.data());
+        })
+        .catch(err => {
+            res.send(err);
+        });
+});
+
+app.get('/todos/:id', (req, res) => {
+    res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+    let id = req.params.id;
+    console.log(`${id}`);
+    //adding sngle quotes in here will cause problem will not fetch document
+    db.collection('cities').doc(`${id}`).get()
         .then(doc => {
 
 
