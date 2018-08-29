@@ -103,17 +103,30 @@ app.post('/todos', (req, res) => {
 //         });
 // });
 
-app.get('/todos', (req, res) => {
+//middleware to create list of returned data from firebase snapshot using Array.push()
+app.use((req, res, next) => {
     res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
-    db.collection('cities').doc('IN').get()
-        .then(doc => {
-
-
-            res.send(doc.data());
+    var citiesRef = db.collection('cities');
+    var citiesList = [];
+    citiesRef.get()
+        .then(snapshot => {
+            snapshot.forEach(doc => {
+                // console.log(doc.id, '=>', doc.data());
+                console.log(doc.data());
+                citiesList.push({id: doc.id, data: doc.data()});
+            });
+            req.cities = citiesList;
+            console.log(citiesList);
+            next();
         })
         .catch(err => {
-            res.send(err);
+            console.log('Error getting documents', err);
         });
+
+});
+
+app.get('/todos', (req, res) => {
+    res.send(req.cities);
 });
 
 app.get('/todos/:id', (req, res) => {
